@@ -1,0 +1,110 @@
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+*.hypothesis/
+.pytest_cache/
+
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# Logs
+*.log
+
+# ==========================================
+# Node / React (future web frontend)
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnp/
+.pnp.js
+.cache/
+.next/
+out/
+build/
+dist/
+.DS_Store
+
+# ==========================================
+# macOS
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external disks
+.Spotlight-V100
+.Trashes
+
+# ==========================================
+# Editor / IDE
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.swm
+
+# ==========================================
+# Project specific
+# ==========================================
+# SQLite memory store
+data/*.sqlite
+
+# Local configs not meant for git
+config/local_settings.yaml
