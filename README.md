@@ -18,8 +18,12 @@ pip install -r requirements.txt
 ```
 
 ### 3. Run backend
-`uvicorn backend.main:app --reload`
+```bash
+uvicorn backend.main:app --reload
+```
 Visit http://127.0.0.1:8000/ping
 
 ### 4. Run CLI
-`python3 frontend/cli.py`
+```bash
+python3 frontend/cli.py
+```
