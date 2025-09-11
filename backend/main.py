@@ -8,14 +8,8 @@ from pydantic import BaseModel
 
 from backend.router import route_intent
 from backend import apps_macos
+from backend.settings import PROTECTED
 
-from backend.settings import PROTECTED, CATEGORIES
-
-# # System/critical processes we must never close
-# PROTECTED: set[str] = {"Finder", "WindowServer", "SystemUIServer", "loginwindow"}
-
-# # Categories supported by the classifier
-# CATEGORIES: set[str] = {"coding", "gaming", "browsers", "chat", "media"}
 
 app = FastAPI(title="Personal Assistant MVP")
 
@@ -42,57 +36,69 @@ def ping() -> dict[str, str]:
 
 @app.post("/query")
 def query(q: Query) -> dict:
-    """
-    Handle a user query by routing to the correct intent.
-    Implements a dry-run for close_apps with dynamic classification via Ollama.
-    """
-    intent = route_intent(q.user_input)
+    """Handle a user query by routing to the correct intent."""
+    parsed = route_intent(q.user_input)
+    intent = parsed["intent"]
+    mode = parsed.get("mode", "none")
+    targets = parsed.get("targets", [])
 
+    # --- Close apps ---
     if intent == "close_apps":
-        text = q.user_input.lower()
-
-        # 1) Which apps are visible right now?
         running = apps_macos.list_apps()
-
-        # 2) Classify each app into a category (cached inside apps_macos)
         classified = {app: apps_macos.classify_app(app) for app in running}
-
-        # 3) Parse: category to close? apps to keep?
-        target_cat = next((c for c in CATEGORIES if c in text), None)
         keep = set(PROTECTED)
+        to_close: list[str] = []
 
-        if "except" in text:
-            # Case 1: "close everything except <app>"
-            # Case 3: "close everything except <category>"
-            except_cat = next((c for c in CATEGORIES if c in text), None)
-            if except_cat:
-                # keep the whole category
-                keep |= {app for app, cat in classified.items() if cat == except_cat}
-            else:
-                # keep explicitly mentioned apps
-                keep |= {app for app in running if app.lower() in text}
-
+        if mode == "app":
+            # Close all except explicitly mentioned apps
+            keep |= {app for app in running if app.lower() in [t.lower() for t in targets]}
             to_close = [app for app in running if app not in keep]
 
-        elif target_cat:
-            # Case 2: "close every <category> app"
-            to_close = [
-                app for app, cat in classified.items()
-                if cat == target_cat and app not in keep
-            ]
+        elif mode == "category":
+            # Keep/close apps based on categories
+            if targets:
+                keep |= {app for app, cat in classified.items() if cat in targets}
+            to_close = [app for app in running if app not in keep]
 
         else:
-            # Default: close everything except protected
+            # Fallback: close everything except protected
             to_close = [app for app in running if app not in keep]
 
-        # Return structured JSON (not one big string)
         return {
             "intent": intent,
             "classified": classified,
             "keeping": sorted(keep),
             "closing": to_close,
-            "note": "Dry-run",
+            "note": "Dry-run (no apps actually closed yet)",
         }
 
-    # Default stub for other intents
+    # --- Move apps ---
+    if intent == "move_apps":
+        return {
+            "intent": intent,
+            "response": f"Would move apps in categories {targets} to new workspaces (stub).",
+        }
+
+    # --- Email summary ---
+    if intent == "email_summary":
+        return {
+            "intent": intent,
+            "response": "Stub: You received 12 emails today. 2 marked urgent.",
+        }
+
+    # --- Birthdays ---
+    if intent == "birthdays":
+        return {
+            "intent": intent,
+            "response": "Stub: Today is Alice's birthday 🎉.",
+        }
+
+    # --- Schedule from email ---
+    if intent == "schedule_from_email":
+        return {
+            "intent": intent,
+            "response": "Stub: Your schedule is 10am Meeting, 1pm Lunch, 3pm Review.",
+        }
+
+    # --- Default fallback ---
     return {"intent": intent, "response": f"Stub for intent: {intent}"}
