@@ -1,7 +1,7 @@
 """LLM-based intent router using Ollama with explicit intent descriptions."""
 from __future__ import annotations
 import ollama
-from backend.settings import MODEL_INTENT  # <-- centralised
+from backend.settings import MODEL_CLASSIFIER
 
 INTENTS = [
     "close_apps",
@@ -37,7 +37,7 @@ def route_intent(user_input: str) -> str:
     """
     try:
         response = ollama.chat(
-            model=MODEL_INTENT,                       # <-- use central model
+            model=MODEL_CLASSIFIER,                       # <-- use central model
             messages=[{"role": "user", "content": prompt}],
         )
         intent = response["message"]["content"].strip().lower()

@@ -7,7 +7,7 @@ from typing import List
 import ollama
 import psutil
 
-from backend.settings import MODEL_CLASSIFIER
+from backend.settings import MODEL_CLASSIFIER, APP_NAME_ALIASES
 
 # Cache for app classifications to avoid repeated LLM calls
 _APP_CLASS_CACHE: dict[str, str] = {}
@@ -28,17 +28,29 @@ def list_apps() -> List[str]:
 
 def classify_app(app_name: str) -> str:
     """
-    Use Ollama to classify an app into a category.
-    Categories: coding, gaming, browsers, chat, media, other.
+    Classify an app into a category.
+    Strategy:
+    1. Check alias map for known apps.
+    2. Check cache for previously seen apps.
+    3. Ask LLM if unknown.
+    4. Cache the result.
     """
     categories = ["coding", "gaming", "browsers", "chat", "media", "other"]
 
+    # Step 1: Alias map (fast + deterministic)
+    if app_name in APP_NAME_ALIASES:
+        category = APP_NAME_ALIASES[app_name]
+        _APP_CLASS_CACHE[app_name] = category
+        return category
+
+    # Step 2: Cache
     if app_name in _APP_CLASS_CACHE:
         return _APP_CLASS_CACHE[app_name]
 
+    # Step 3: LLM classification
     prompt = f"""
     Classify this macOS application into exactly one of the following categories:
-    - coding (e.g., Visual Studio Code, sublime_text, PyCharm, Xcode, IntelliJ, Terminal)
+    - coding (e.g., Visual Studio Code, Sublime Text, PyCharm, Xcode, IntelliJ, Terminal)
     - gaming (e.g., Steam, Riot Client, Epic Games, Minecraft)
     - browsers (e.g., Safari, Firefox, Google Chrome, Brave)
     - chat (e.g., Discord, Slack, Telegram, WhatsApp, ChatGPT)
@@ -49,7 +61,6 @@ def classify_app(app_name: str) -> str:
 
     Reply with only the category name.
     """
-
     try:
         response = ollama.chat(
             model=MODEL_CLASSIFIER,
@@ -62,6 +73,7 @@ def classify_app(app_name: str) -> str:
     if category not in categories:
         category = "other"
 
+    # Step 4: Cache & return
     _APP_CLASS_CACHE[app_name] = category
     return category
 
