@@ -1,11 +1,13 @@
 """macOS application management tools for Personal Assistant."""
 
 import subprocess
-import psutil
 import os
 import signal
 from typing import List
 import ollama
+import psutil
+
+from backend.settings import MODEL_CLASSIFIER
 
 # Cache for app classifications to avoid repeated LLM calls
 _APP_CLASS_CACHE: dict[str, str] = {}
@@ -36,7 +38,7 @@ def classify_app(app_name: str) -> str:
 
     prompt = f"""
     Classify this macOS application into exactly one of the following categories:
-    - coding (e.g., Visual Studio Code, sublime_text, PyCharm, Xcode, IntelliJ)
+    - coding (e.g., Visual Studio Code, sublime_text, PyCharm, Xcode, IntelliJ, Terminal)
     - gaming (e.g., Steam, Riot Client, Epic Games, Minecraft)
     - browsers (e.g., Safari, Firefox, Google Chrome, Brave)
     - chat (e.g., Discord, Slack, Telegram, WhatsApp, ChatGPT)
@@ -50,7 +52,7 @@ def classify_app(app_name: str) -> str:
 
     try:
         response = ollama.chat(
-            model="llama3.2:3b",
+            model=MODEL_CLASSIFIER,
             messages=[{"role": "user", "content": prompt}],
         )
         category = response["message"]["content"].strip().lower()

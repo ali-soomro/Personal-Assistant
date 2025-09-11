@@ -1,6 +1,7 @@
 """LLM-based intent router using Ollama with explicit intent descriptions."""
-
+from __future__ import annotations
 import ollama
+from backend.settings import MODEL_INTENT  # <-- centralised
 
 INTENTS = [
     "close_apps",
@@ -20,12 +21,8 @@ INTENT_DESCRIPTIONS = """
 - general: when the query doesn't match the others.
 """
 
-
 def route_intent(user_input: str) -> str:
-    """
-    Use a local LLM to classify user input into one of the supported intents.
-    Falls back to 'general' if the model response is invalid.
-    """
+    """Classify user input into one of the supported intents."""
     prompt = f"""
     You are an intent classifier.
     Possible intents: {", ".join(INTENTS)}.
@@ -38,16 +35,13 @@ def route_intent(user_input: str) -> str:
 
     User input: "{user_input}"
     """
-
     try:
         response = ollama.chat(
-            model="llama3.2:3b",  # switched from deepseek-r1:8b
+            model=MODEL_INTENT,                       # <-- use central model
             messages=[{"role": "user", "content": prompt}],
         )
         intent = response["message"]["content"].strip().lower()
     except Exception:
         return "general"
 
-    if intent not in INTENTS:
-        return "general"
-    return intent
+    return intent if intent in INTENTS else "general"
