@@ -14,9 +14,10 @@ PROTECTED: set[str] = {
 
 # ---- Aliases --------------
 APP_NAME_ALIASES: dict[str, str] = {
-    "Electron": "Visual Studio Code",
-    "sublime_text": "Sublime Text",
-    "google chrome": "Google Chrome",
-    "firefox": "Firefox",
-    "discord": "Discord",
+    "Electron": "coding",
+    "sublime_text": "coding",
+    "google chrome": "browsers",
+    "firefox": "browsers",
+    "discord": "chat",
+    "ChatGPT": "chat",
 }

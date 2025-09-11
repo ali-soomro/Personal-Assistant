@@ -9,11 +9,13 @@ from pydantic import BaseModel
 from backend.router import route_intent
 from backend import apps_macos
 
-# System/critical processes we must never close
-PROTECTED: set[str] = {"Finder", "WindowServer", "SystemUIServer", "loginwindow"}
+from backend.settings import PROTECTED, CATEGORIES
 
-# Categories supported by the classifier
-CATEGORIES: set[str] = {"coding", "gaming", "browsers", "chat", "media"}
+# # System/critical processes we must never close
+# PROTECTED: set[str] = {"Finder", "WindowServer", "SystemUIServer", "loginwindow"}
+
+# # Categories supported by the classifier
+# CATEGORIES: set[str] = {"coding", "gaming", "browsers", "chat", "media"}
 
 app = FastAPI(title="Personal Assistant MVP")
 
