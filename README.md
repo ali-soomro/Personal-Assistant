@@ -27,3 +27,10 @@ Visit http://127.0.0.1:8000/ping
 ```bash
 python3 frontend/cli.py
 ```
+
+### 5. Example usage
+```
+close everything except VSCode
+close every coding app
+close everything except coding apps
+```
